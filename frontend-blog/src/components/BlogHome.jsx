@@ -19,6 +19,14 @@ const popularTags = [
 function BlogCard({ post, large = false }) {
   const postId = post._id || post.id;
 
+  const formattedDate = post.createdAt
+    ? new Date(post.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "";
+
   return (
     <Link
       to={`/blog/${postId}`}
@@ -34,18 +42,30 @@ function BlogCard({ post, large = false }) {
       <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent' />
 
       <div className='relative z-10 p-4'>
-        <Badge className='bg-white/90 text-black text-xs font-semibold hover:bg-white'>
-          {post.category}
-        </Badge>
+        <div className='flex items-center justify-between gap-2'>
+          <Badge className='bg-white/90 text-black text-xs font-semibold hover:bg-white'>
+            {post.category}
+          </Badge>
+          {formattedDate && (
+            <span className='text-xs text-zinc-300'>{formattedDate}</span>
+          )}
+        </div>
       </div>
 
-      <div className='relative z-10 mt-auto p-4 space-y-3'>
+      <div className='relative z-10 mt-auto p-4 space-y-2'>
         <h3
           className={`font-bold text-white leading-snug ${large ? "text-xl" : "text-base"}`}
         >
           {post.title}
         </h3>
-        <div className='flex items-center gap-2'>
+
+        {post.excerpt && (
+          <p className='text-xs text-zinc-300 line-clamp-2'>
+            {post.excerpt}
+          </p>
+        )}
+
+        <div className='flex items-center gap-2 pt-1'>
           <Avatar className='h-7 w-7 ring-2 ring-white/30'>
             <AvatarImage
               src={typeof post.author === "object" ? post.author.avatar : ""}
@@ -136,8 +156,10 @@ export default function BlogHome() {
         );
         setEducationPosts(eduRes.data.posts || []);
 
-        // Fetch more posts (general)
-        const moreRes = await axios.get(`${API_BASE}/posts?limit=3`);
+        // Fetch more posts (random)
+        const moreRes = await axios.get(
+          `${API_BASE}/posts?limit=3&random=true`,
+        );
         setMorePosts(moreRes.data.posts || []);
 
         // Fetch all authors

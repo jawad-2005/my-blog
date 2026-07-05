@@ -478,6 +478,12 @@ const BlogDetail = () => {
           {post.title}
         </h1>
 
+        {post.excerpt && (
+          <p className='text-lg text-muted-foreground leading-relaxed pt-4'>
+            {post.excerpt}
+          </p>
+        )}
+
         <div className='flex items-center gap-3 pt-4'>
           <Avatar className='h-10 w-10'>
             <AvatarImage src={author.avatar} />

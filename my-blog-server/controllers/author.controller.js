@@ -156,7 +156,7 @@ export const getAllAuthors = async (req, res) => {
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 9);
     const skip = (page - 1) * limit;
 
-    const query = { role: { $in: ["author", "admin"] } };
+    const query = { role: "author" };
     const totalAuthors = await User.countDocuments(query);
     const totalPages = Math.ceil(totalAuthors / limit);
 

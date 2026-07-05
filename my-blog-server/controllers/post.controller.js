@@ -17,6 +17,7 @@ export const getPosts = async (req, res) => {
       page = 1,
       limit = 10,
       sort = "-createdAt",
+      random = false,
     } = req.query;
 
     const searchTerm = search || q;
@@ -40,7 +41,38 @@ export const getPosts = async (req, res) => {
       ];
     }
 
-    // Pagination
+    // Handle random posts using aggregation
+    if (random === "true" || random === true) {
+      const total = await Post.countDocuments(query);
+      const posts = await Post.aggregate([
+        { $match: query },
+        { $sample: { size: Math.min(parseInt(limit), total) } },
+      ])
+        .lookup({
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+        })
+        .addFields({
+          author: { $arrayElemAt: ["$author", 0] },
+        })
+        .project({
+          "author.password": 0,
+          "author.email": 0,
+        });
+
+      return res.status(200).json({
+        success: true,
+        posts,
+        total,
+        page: parseInt(page),
+        totalPages: 1,
+        hasMore: false,
+      });
+    }
+
+    // Pagination for non-random queries
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Execute query
