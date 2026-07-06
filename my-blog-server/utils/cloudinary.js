@@ -1,55 +1,41 @@
 import { v2 as cloudinary } from "cloudinary";
-import cloudinaryConfig from "../config/cloudinary.js";
+import dotenv from "dotenv";
+import streamifier from "streamifier";
 
-/**
- * Upload a file BUFFER to Cloudinary using a stream.
- * Works with multer memoryStorage (req.file.buffer / req.files[].buffer),
- * so you never need temp files on disk.
- *
- * @param {Buffer} buffer - file buffer from multer
- * @param {string} folder - Cloudinary folder, e.g. "blog/avatars"
- * @returns {Promise<object>} upload result (contains secure_url, public_id, ...)
- */
-export const streamUpload = (buffer, folder = "blog") => {
+dotenv.config();
+
+const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
+  process.env;
+
+if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+  console.warn("Cloudinary credentials missing in environment variables.");
+}
+
+cloudinary.config({
+  cloud_name: CLOUDINARY_CLOUD_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
+});
+
+export const streamUpload = (
+  buffer,
+  folder = "blog/uploads",
+  resourceType = "auto",
+) => {
   return new Promise((resolve, reject) => {
-    const stream = cloudinaryConfig.uploader.upload_stream(
-      { folder, resource_type: "image" },
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: resourceType, // "image", "video", or "auto"
+      },
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
+        if (error) return reject(error);
+        resolve(result);
       },
     );
-    stream.end(buffer);
+
+    streamifier.createReadStream(buffer).pipe(uploadStream);
   });
 };
 
-/**
- * Delete an asset from Cloudinary by its URL.
- * Safely does nothing if the URL is empty or not a Cloudinary URL.
- *
- * @param {string} imageUrl - the stored Cloudinary secure_url
- */
-export const deleteFromCloudinary = async (imageUrl) => {
-  if (!imageUrl || !imageUrl.includes("cloudinary.com")) return;
-
-  try {
-    // Extract public_id from the URL (strip folder path + extension)
-    // e.g. .../upload/v123/blog/avatars/abc.jpg -> blog/avatars/abc
-    const parts = imageUrl.split("/");
-    const fileName = parts[parts.length - 1]; // abc.jpg
-    const folderPath = parts.slice(parts.indexOf("upload") + 2, -1).join("/");
-    const publicId = folderPath
-      ? `${folderPath}/${fileName.split(".")[0]}`
-      : fileName.split(".")[0];
-
-    await cloudinaryConfig.uploader.destroy(publicId, {
-      resource_type: "image",
-    });
-  } catch (error) {
-    console.error("Cloudinary delete error:", error.message);
-  }
-};
-
 export default cloudinary;
-
-// this file centralizes Cloudinary interactions, providing a clean interface for uploading and deleting images. The streamUpload function allows us to upload image buffers directly to Cloudinary, while deleteFromCloudinary handles the deletion of images based on their URL. This abstraction keeps our controllers clean

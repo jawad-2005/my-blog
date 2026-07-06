@@ -100,6 +100,7 @@ const CreatePost = () => {
         },
       };
       await axios.post(`${API_BASE}/posts`, formData, config);
+
       dispatch(
         showToast({ severity: "success", detail: "Published successfully!" }),
       );
@@ -154,7 +155,7 @@ const CreatePost = () => {
             type='file'
             className='hidden'
             accept='image/*'
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
           />
         </div>
 
@@ -167,6 +168,7 @@ const CreatePost = () => {
             id='title'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+           
             placeholder='Enter an engaging title...'
             required
             maxLength={500}

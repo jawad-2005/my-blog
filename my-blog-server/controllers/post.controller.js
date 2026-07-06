@@ -2,6 +2,7 @@ import Post from "../models/post.model.js"; // Adjust path as needed
 import User from "../models/user.model.js";
 import { streamUpload } from "../utils/cloudinary.js";
 
+
 // ══════════════════════════════════════════════════════════════════════════════
 // @desc    Get all posts with filtering and pagination
 // @route   GET /api/posts

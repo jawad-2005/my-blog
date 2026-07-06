@@ -13,6 +13,8 @@ import userRoutes from "./routes/userRoutes.js";
 import authorRoutes from "./routes/authorRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+
 
 // 1. Load environment variables
 dotenv.config();
@@ -58,6 +60,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/authors", authorRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/uploads", uploadRoutes);
+
 
 // Test route
 app.get("/", (req, res) => {
