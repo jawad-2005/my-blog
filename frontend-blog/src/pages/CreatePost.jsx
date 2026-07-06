@@ -5,10 +5,6 @@ import axios from "axios";
 import API_BASE from "@/lib/apiBase";
 import { showToast } from "../store/uiSlice";
 
-// 1. Import Tiptap Editor and its Styles
-import { MinimalTiptapEditor } from "reactjs-tiptap-editor";
-import "reactjs-tiptap-editor/style.css";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +18,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ImagePlus, Loader2, X } from "lucide-react";
+
+import PostContentEditor from "@/components/TiptapEditor";
 
 const CATEGORIES = [
   { value: "ai", label: "AI" },
@@ -40,7 +38,7 @@ const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState(""); // This stores the HTML string
+  const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [isSpecial, setIsSpecial] = useState("no");
   const [hashtags, setHashtags] = useState([]);
@@ -72,6 +70,7 @@ const CreatePost = () => {
     setHashtags(hashtags.filter((tag) => tag !== tagToRemove));
   };
 
+  // send form data to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!category) {
@@ -85,7 +84,7 @@ const CreatePost = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("category", category);
-    formData.append("content", content); // Sending HTML string to backend
+    formData.append("content", content);
     formData.append("excerpt", excerpt);
     formData.append("isSpecial", isSpecial === "yes");
     formData.append("isFeatured", isSpecial === "yes");
@@ -241,19 +240,12 @@ const CreatePost = () => {
           />
         </div>
 
-        {/* 2. REPLACED CKEditor with MinimalTiptapEditor */}
         <div className='space-y-2'>
           <Label>
             Content <span className='text-destructive'>*</span>
           </Label>
           <div className='rounded-lg border bg-background min-h-[400px]'>
-            <MinimalTiptapEditor
-              value={content}
-              onChangeContent={setContent} // Automatically updates the 'content' state
-              className='w-full'
-              placeholder='Write your story using modern Tiptap editor...'
-              // The editor handles basic formatting, links, and code blocks automatically
-            />
+            <PostContentEditor value={content} onChange={setContent} />
           </div>
         </div>
 
