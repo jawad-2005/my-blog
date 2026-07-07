@@ -88,10 +88,6 @@ const uploadEditorMedia = async (file) => {
     },
   });
 
-  if (!data?.url) {
-    throw new Error(data?.message || "Upload failed");
-  }
-
   return data.url;
 };
 

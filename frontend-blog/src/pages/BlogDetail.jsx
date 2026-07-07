@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
+import "reactjs-tiptap-editor/style.css";
+
 import {
   addBookmark,
   removeBookmark,
   addLikedPost,
   removeLikedPost,
 } from "@/store/userSlice";
-import { showToast } from "@/store/uiSlice"; // Import your toast action
+import { showToast } from "@/store/uiSlice";
 import axios from "axios";
 import API_BASE from "@/lib/apiBase";
 import {
@@ -32,6 +35,9 @@ import PostCard from "@/components/PostCard";
 
 // for sanitizing HTML content if needed
 import DOMPurify from "dompurify";
+import { normalizePostContent, purifyConfig } from "@/DOMPurifyConfig";
+
+
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -73,6 +79,7 @@ const BlogDetail = () => {
     const fetchPost = async () => {
       try {
         const { data } = await axios.get(`${API_BASE}/posts/${id}`);
+       
 
         if (data.success && data.data) {
           setPost(data.data);
@@ -108,6 +115,7 @@ const BlogDetail = () => {
     fetchPost();
   }, [id, dispatch]);
 
+  // get similar posts based on category
   useEffect(() => {
     const fetchSimilarPosts = async () => {
       if (!post?.category) return;
@@ -513,10 +521,14 @@ const BlogDetail = () => {
         </div>
       )}
 
-      {/* Content Body */}
       <article
-        className='prose prose-lg dark:prose-invert max-w-none mb-8'
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postContent) }}
+        className='article-content prose prose-lg dark:prose-invert max-w-none mb-8'
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(
+            normalizePostContent(postContent),
+            purifyConfig,
+          ),
+        }}
       />
 
       {post.hashtags?.length > 0 && (

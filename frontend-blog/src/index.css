@@ -136,7 +136,7 @@
 
   /* Error Toast Glass Effect */
   .p-toast .p-toast-message.p-toast-message-error {
-    background: rgba(236, 253, 245, 0.282)!important;
+    background: rgba(236, 253, 245, 0.282) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
 
@@ -167,3 +167,47 @@
   border-radius: 2px;
 }
 
+/* Dom purify configuration for allowing iframes and videos */
+.article-content .blog-video-wrapper {
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.article-content .blog-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 70vh;
+  display: block;
+  background: #000;
+  border-radius: 0.75rem;
+}
+
+.article-content iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 360px;
+  display: block;
+  border: 0;
+  border-radius: 0.75rem;
+  background: #000;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+.article-content video {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  margin: 1.5rem 0;
+}
+
+.article-content .iframe-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 1.5rem 0;
+}
