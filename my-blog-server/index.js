@@ -75,6 +75,29 @@ app.get("/", (req, res) => {
   });
 });
 
+
+
+// SERVE FRONTEND (FOR PRODUCTION)
+// ══════════════════════════════════════════════════════════════════════════════
+if (process.env.NODE_ENV === "production") {
+  // 1. Set the path to the frontend's dist folder
+  const frontendPath = path.join(__dirname, "../frontend-blog/dist");
+
+  // 2. Serve the static files from the dist folder
+  app.use(express.static(frontendPath));
+
+  // 3. For any route that doesn't match an API route, send the index.html file
+  // This is required for React Router / SPA routing to work
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+} else {
+  // Test route for development
+  app.get("/", (req, res) => {
+    res.send("API is running in development mode...");
+  });
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // ERROR HANDLING
 // ══════════════════════════════════════════════════════════════════════════════
