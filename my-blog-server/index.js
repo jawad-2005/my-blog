@@ -25,11 +25,11 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 3. ES6 fix for __dirname
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 4. Ensure uploads folder exists
+
 const uploadsDir = path.join(__dirname, "/uploads");
 try {
   await fs.mkdir(uploadsDir, { recursive: true });

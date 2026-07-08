@@ -1,0 +1,1 @@
+"use strict";var t=(n,r)=>{if(n==="slot")return 0;if(n instanceof Function)return n(r);const{children:e,...s}=r??{};if(n==="svg")throw new Error("SVG elements are not supported in the JSX syntax, use the array syntax instead");return[n,s,e]};exports.h=t;
