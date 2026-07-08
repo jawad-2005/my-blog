@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose"; // ✅ ADD THIS IMPORT
+import mongoose from "mongoose";
 
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
-import cloudinary from "../config/cloudinary.js"; // ✅ ADD THIS
-import { profileUpdateSchema } from "../../Shared/validation.js";
+import cloudinary from "../config/cloudinary.js";
+import { profileUpdateSchema } from "../utils/validation.js";
 
 // ─── Cloudinary Helpers (were missing!) ──────────────────────────────────────
 const streamUpload = (buffer, folder = "blog") => {

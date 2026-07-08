@@ -10,7 +10,7 @@ import {
   otpSchema,
   loginSchema,
   profileUpdateSchema,
-} from "../../Shared/validation.js";
+} from "../utils/validation.js";
 
 const streamUpload = (buffer, folder = "blog") => {
   return new Promise((resolve, reject) => {

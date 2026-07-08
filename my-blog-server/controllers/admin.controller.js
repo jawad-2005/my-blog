@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 
-import { authorApplicationSchema } from "../../Shared/validation.js";
+import { authorApplicationSchema } from "../utils/validation.js";
 
 // @desc    Submit application to become an author
 // @route   POST /api/users/apply-author

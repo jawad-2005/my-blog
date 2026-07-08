@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@shared/validation";
+import { loginSchema } from "@/lib/validation";
 
 import axios from "axios";
 import API_BASE from "@/lib/apiBase";
