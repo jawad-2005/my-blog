@@ -59,8 +59,8 @@ app.use("/api/posts", postRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/uploads", uploadRoutes);
 
-// Test route
-app.get("/", (req, res) => {
+//  for fist time check server is run or not you don't need always 
+/* app.get("/", (req, res) => {
   res.json({
     message: "🚀 Blog API is running!",
     endpoints: {
@@ -69,7 +69,7 @@ app.get("/", (req, res) => {
       posts: "/api/posts",
     },
   });
-});
+}); */
 
 // SERVE FRONTEND (FOR PRODUCTION)
 // ══════════════════════════════════════════════════════════════════════════════
