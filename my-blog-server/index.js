@@ -88,7 +88,7 @@ if (process.env.NODE_ENV === "production") {
 
   // 3. For any route that doesn't match an API route, send the index.html file
   // This is required for React Router / SPA routing to work
-  app.get("*", (req, res) => {
+  app.get("{*path}", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 } else {
