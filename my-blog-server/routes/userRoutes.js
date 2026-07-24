@@ -6,6 +6,7 @@ import {
   register,
   login,
   verifyOTP,
+  resendOTP,
   updateAvatar,
   logoutUser,
   getMe,
@@ -40,6 +41,7 @@ const upload = multer({
 // Public Routes
 router.post("/register", register);
 router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
 router.post("/login", login);
 router.get("/logout", logoutUser);
 router.get("/me", protect, getMe);
