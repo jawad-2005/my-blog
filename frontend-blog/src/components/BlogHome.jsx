@@ -39,7 +39,7 @@ function BlogCard({ post, large = false }) {
         alt={post.title}
         className='absolute inset-0 h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300'
       />
-      <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent' />
+      <div className='absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent' />
 
       <div className='relative z-10 p-4'>
         <div className='flex items-center justify-between gap-2'>
@@ -60,9 +60,7 @@ function BlogCard({ post, large = false }) {
         </h3>
 
         {post.excerpt && (
-          <p className='text-xs text-zinc-300 line-clamp-2'>
-            {post.excerpt}
-          </p>
+          <p className='text-xs text-zinc-300 line-clamp-2'>{post.excerpt}</p>
         )}
 
         <div className='flex items-center gap-2 pt-1'>
@@ -126,60 +124,64 @@ export default function BlogHome() {
   const [programmingPosts, setProgrammingPosts] = useState([]);
   const [educationPosts, setEducationPosts] = useState([]);
   const [morePosts, setMorePosts] = useState([]);
-  const [allAuthors, setAllAuthors] = useState([]);
+  // const [allAuthors, setAllAuthors] = useState([]);
   const [prolificAuthors, setProlificAuthors] = useState([]);
   const [topArticles, setTopArticles] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        // Fetch featured post
-        const featuredRes = await axios.get(`${API_BASE}/posts/featured`);
-        setFeaturedPost(featuredRes.data.data || featuredRes.data.post || null);
+        // Use allSettled so one failure doesn't stop the whole page
+        const results = await Promise.allSettled([
+          axios.get(`${API_BASE}/posts/featured`), // [0]
+          axios.get(`${API_BASE}/posts/category/AI?limit=3`), // [1]
+          axios.get(`${API_BASE}/posts/category/Technology?limit=3`), // [2]
+          axios.get(`${API_BASE}/posts/category/Programming?limit=3`), // [3]
+          axios.get(`${API_BASE}/posts/category/Education?limit=3`), // [4]
+          axios.get(`${API_BASE}/posts?limit=3&random=true`), // [5]
+          axios.get(`${API_BASE}/authors`), // [6]
+          axios.get(`${API_BASE}/authors/top/prolific`), // [7]
+          axios.get(`${API_BASE}/posts/top/viewed`), // [8]
+        ]);
 
-        // Fetch posts by categories (limit to 3 each)
-        const aiRes = await axios.get(`${API_BASE}/posts/category/AI?limit=3`);
-        setAiPosts(aiRes.data.posts || []);
+        // Map the results back to your state safely
+        if (results[0].status === "fulfilled")
+          setFeaturedPost(
+            results[0].value.data.data || results[0].value.data.post || null,
+          );
 
-        const techRes = await axios.get(
-          `${API_BASE}/posts/category/Technology?limit=3`,
-        );
-        setTechnologyPosts(techRes.data.posts || []);
+        if (results[1].status === "fulfilled")
+          setAiPosts(results[1].value.data.posts || []);
 
-        const proRes = await axios.get(
-          `${API_BASE}/posts/category/Programming?limit=3`,
-        );
-        setProgrammingPosts(proRes.data.posts || []);
+        if (results[2].status === "fulfilled")
+          setTechnologyPosts(results[2].value.data.posts || []);
 
-        const eduRes = await axios.get(
-          `${API_BASE}/posts/category/Education?limit=3`,
-        );
-        setEducationPosts(eduRes.data.posts || []);
+        if (results[3].status === "fulfilled")
+          setProgrammingPosts(results[3].value.data.posts || []);
 
-        // Fetch more posts (random)
-        const moreRes = await axios.get(
-          `${API_BASE}/posts?limit=3&random=true`,
-        );
-        setMorePosts(moreRes.data.posts || []);
+        if (results[4].status === "fulfilled")
+          setEducationPosts(results[4].value.data.posts || []);
 
-        // Fetch all authors
-        const authorsRes = await axios.get(`${API_BASE}/authors`);
-        setAllAuthors(authorsRes.data.data || []);
+        if (results[5].status === "fulfilled")
+          setMorePosts(results[5].value.data.posts || []);
 
-        // Fetch prolific (top 10 active) authors
-        const prolificRes = await axios.get(`${API_BASE}/authors/top/prolific`);
-        setProlificAuthors(prolificRes.data.data || []);
+        /*          if (results[6].status === "fulfilled")
+           setAllAuthors(
+             results[6].value.data.data || results[6].value.data || [],
+           ); */
 
-        // Fetch top 5 viewed articles
-        const topArticlesRes = await axios.get(`${API_BASE}/posts/top/viewed`);
-        setTopArticles(topArticlesRes.data.data || []);
+        if (results[7].status === "fulfilled")
+          setProlificAuthors(results[7].value.data.data || []);
+
+        if (results[8].status === "fulfilled")
+          setTopArticles(results[8].value.data.data || []);
       } catch (error) {
-        console.error("Failed to fetch blog data", error);
+        console.error("Critical fetch error", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -206,7 +208,7 @@ export default function BlogHome() {
               alt={featuredPost.title}
               className='absolute inset-0 w-full h-full object-cover brightness-75 group-hover:brightness-90 transition-all duration-500 rounded-2xl '
             />
-            <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent' />
+            <div className='absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent' />
             <div
               className='relative z-10 flex flex-col justify-end h-full p-8 md:p-10'
               style={{ minHeight: 280 }}
@@ -388,7 +390,7 @@ export default function BlogHome() {
                       </span>
                       <Avatar className='h-7 w-7'>
                         <AvatarImage src={author.avatar} alt={author.name} />
-                        <AvatarFallback className='bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs'>
+                        <AvatarFallback className='bg-linear-to-br from-blue-400 to-blue-600 text-white text-xs'>
                           {author.name[0]}
                         </AvatarFallback>
                       </Avatar>
