@@ -1,3 +1,5 @@
+import axios from "axios";
+
 // This checks the address bar in your browser
 const isLocalhost =
   window.location.hostname === "localhost" ||
@@ -6,5 +8,7 @@ const isLocalhost =
 // If you are on your computer, use localhost.
 // If you are on Render, use the relative path "/api"
 const API_BASE = isLocalhost ? "http://localhost:3000/api" : "/api";
+
+axios.defaults.withCredentials = true;
 
 export default API_BASE;
