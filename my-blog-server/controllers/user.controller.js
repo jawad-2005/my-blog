@@ -140,6 +140,55 @@ export const verifyOTP = async (req, res) => {
   }
 };
 
+
+// @desc    Resend OTP Code
+// @route   POST /api/users/resend-otp
+export const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // 1. Check if email is provided
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    // 2. Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // 3. Optional: Check if user is already verified
+    if (user.isVerified) {
+      return res.status(400).json({ success: false, message: "Account already verified" });
+    }
+
+    // 4. Generate new 6-digit OTP
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // 5. Update user with new OTP and new expiry (e.g., 10 minutes from now)
+    user.otp = {
+      code: newOtp,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+    };
+
+    await user.save();
+
+    // 6. Send Email (Use your existing mail utility here)
+    // await sendVerificationEmail(user.email, newOtp); 
+
+    return res.status(200).json({
+      success: true,
+      message: "A new OTP has been sent to your email.",
+    });
+
+  } catch (error) {
+    console.error("Resend OTP Error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
 // @desc    Login user
 // @route   POST /api/users/login
 export const login = async (req, res) => {
