@@ -25,14 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import API_BASE from "@/lib/apiBase";
 import PostCard from "@/components/PostCard";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
+
 
 const pageSize = 9;
 
@@ -262,11 +255,11 @@ const Profile = () => {
               className='w-full h-full object-cover'
             />
           ) : (
-            <div className='w-full h-full bg-gradient-to-r from-muted to-muted-foreground/20' />
+            <div className='w-full h-full bg-linear-to-r from-muted to-muted-foreground/20' />
           )}
         </div>
 
-        <div className='-mt-[54px] md:-mt-[70px] z-10 bg-background p-1.5 rounded-full border border-background shadow-sm'>
+        <div className='-mt-13.5 md:-mt-17.5 z-10 bg-background p-1.5 rounded-full border border-background shadow-sm'>
           <Avatar className='h-24 w-24 md:h-32 md:w-32 border-2 border-border'>
             <AvatarImage src={user?.avatar} alt={user?.name} />
             <AvatarFallback>{initials}</AvatarFallback>
@@ -292,7 +285,7 @@ const Profile = () => {
                 setting account
               </Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px] max-h-[90vh] overflow-y-auto'>
+            <DialogContent className='sm:max-w-106.25 max-h-[90vh] overflow-y-auto'>
               <DialogHeader>
                 <DialogTitle>Edit Profile Settings</DialogTitle>
                 <DialogDescription>
