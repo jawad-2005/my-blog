@@ -30,18 +30,28 @@ const VerifyOtp = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get email from navigation state or allow fallback input
   const initialEmail = location.state?.email || "";
-  const previewUrl = location.state?.previewUrl || null;
 
   const [emailInput, setEmailInput] = useState(initialEmail);
   const [value, setValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false); // New state for resending loader
   const [serverError, setServerError] = useState("");
 
-  // Timer State for "Resend Code"
+  // Timer State
   const [timeLeft, setTimeLeft] = useState(30);
-  const [canResend, setCanResend] = useState(false);
+  const canResend = timeLeft === 0;
+
+  // --- TIMER LOGIC ---
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer); // Cleanup on unmount
+  }, [timeLeft]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,9 +59,7 @@ const VerifyOtp = () => {
 
     const verificationEmail = emailInput.trim();
     if (!verificationEmail) {
-      setServerError(
-        "Please enter the email address used during registration.",
-      );
+      setServerError("Please enter the email address.");
       return;
     }
 
@@ -75,24 +83,44 @@ const VerifyOtp = () => {
     } catch (error) {
       const message = error.response?.data?.message || "Invalid OTP";
       setServerError(message);
-      dispatch(
-        showToast({
-          severity: "error",
-          summary: "Verification Failed",
-          detail: message,
-        }),
-      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle Resend Click
-  const handleResend = () => {
-    // You would typically call an axios.post("/api/users/resend-otp", { email }) here
-    setTimeLeft(30);
-    setCanResend(false);
-    alert("Check your email for a new code!");
+  // --- RESEND OTP LOGIC ---
+  const handleResend = async () => {
+    if (!canResend || isResending) return;
+
+    setIsResending(true);
+    try {
+      // Replace with your actual backend endpoint
+      await axios.post(`${API_BASE}/users/resend-otp`, {
+        email: emailInput,
+      });
+
+      dispatch(
+        showToast({
+          severity: "success",
+          summary: "OTP Sent",
+          detail: "A new code has been sent to your email.",
+        }),
+      );
+
+      // Reset timer
+      setTimeLeft(30);
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to resend OTP";
+      dispatch(
+        showToast({
+          severity: "error",
+          summary: "Error",
+          detail: message,
+        }),
+      );
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -108,22 +136,7 @@ const VerifyOtp = () => {
           <CardDescription>
             We have sent a 6-digit code to{" "}
             <strong>{emailInput || "your email"}</strong>.
-            <br />
-            Enter it below to confirm your account.
           </CardDescription>
-          {previewUrl && (
-            <div className='mt-3 text-sm text-muted-foreground'>
-              Test preview available:
-              <a
-                href={previewUrl}
-                target='_blank'
-                rel='noreferrer'
-                className='text-primary underline'
-              >
-                Open email
-              </a>
-            </div>
-          )}
         </CardHeader>
 
         <CardContent>
@@ -131,14 +144,13 @@ const VerifyOtp = () => {
             onSubmit={handleSubmit}
             className='flex flex-col items-center space-y-6'
           >
-            {/* Show error from backend if OTP is wrong or expired */}
             {serverError && (
               <div className='bg-destructive/15 text-destructive text-sm p-3 rounded-md w-full'>
                 {serverError}
               </div>
             )}
 
-            <div className='w-full space-y-2'>
+            <div className='w-full space-y-2 text-left'>
               <Label>Email</Label>
               <Input
                 type='email'
@@ -182,15 +194,24 @@ const VerifyOtp = () => {
           <div className='text-sm text-muted-foreground'>
             Didn't receive the code?{" "}
             <button
+              type='button'
               onClick={handleResend}
-              disabled={!canResend}
-              className={`font-medium underline-offset-4 ${
-                canResend
+              disabled={!canResend || isResending}
+              className={`font-medium transition-colors ${
+                canResend && !isResending
                   ? "text-primary hover:underline cursor-pointer"
                   : "text-muted-foreground/50 cursor-not-allowed"
               }`}
             >
-              {canResend ? "Resend" : `Resend in ${timeLeft}s`}
+              {isResending ? (
+                <span className='flex items-center gap-1'>
+                  <Loader2 className='h-3 w-3 animate-spin' /> Sending...
+                </span>
+              ) : canResend ? (
+                "Resend"
+              ) : (
+                `Resend in ${timeLeft}s`
+              )}
             </button>
           </div>
 
