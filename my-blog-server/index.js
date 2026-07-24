@@ -105,7 +105,14 @@ app.use((req, res) => {
 // ══════════════════════════════════════════════════════════════════════════════
 // START SERVER
 // ══════════════════════════════════════════════════════════════════════════════
-app.listen(PORT, () => {
-  console.log(`✅ Server is running on http://localhost:${PORT}`);
-  // console.log(`📚 API Documentation: http://localhost:${PORT}/`);
+
+/* app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+}); */
+
+// when upload in render
+
+// Explicitly add "0.0.0.0"
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server is running on port ${PORT}`);
 });
