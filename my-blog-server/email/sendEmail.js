@@ -28,11 +28,10 @@ const sendEmail = async (options) => {
   let transporter;
   let usingTestAccount = false;
 
+  // Use Port 587 as default for production stability
   const emailHost = process.env.EMAIL_HOST || "smtp.gmail.com";
-  const emailPort = Number(process.env.EMAIL_PORT) || 465;
-  const emailSecure =
-    process.env.EMAIL_SECURE === "true" ||
-    (process.env.EMAIL_SECURE === undefined && emailPort === 465);
+  const emailPort = Number(process.env.EMAIL_PORT) || 587;
+  const emailSecure = emailPort === 465; // Only true if using 465
 
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     transporter = nodemailer.createTransport({
@@ -43,32 +42,28 @@ const sendEmail = async (options) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      // ADD THESE TIMEOUTS TO PREVENT THE 2-MINUTE HANG
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   } else {
+    // FALLBACK TO TEST ACCOUNT (ETHEREAL)
     const testAccount = await nodemailer.createTestAccount();
     usingTestAccount = true;
     transporter = nodemailer.createTransport({
       host: testAccount.smtp.host,
       port: testAccount.smtp.port,
       secure: testAccount.smtp.secure,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
+      auth: { user: testAccount.user, pass: testAccount.pass },
     });
   }
 
-  // Check if connection is successful before sending
-  try {
-    await transporter.verify();
-    console.log("SMTP Connection verified successfully");
-  } catch (err) {
-    console.error("SMTP Connection failed:", err);
-    return { success: false, error: err };
-  }
+  // REMOVED: await transporter.verify()
+  // (It's better to just try sending and catch the error)
 
   const mailOptions = {
-    from: `"RH-Paradox Support" <${process.env.EMAIL_FROM || process.env.EMAIL_USER || "no-reply@example.com"}>`,
+    from: `"RH-Paradox Support" <${process.env.EMAIL_USER}>`,
     to: options.email,
     subject: options.subject || "Verify your account",
     html: buildHtml(options.otp),
@@ -76,11 +71,6 @@ const sendEmail = async (options) => {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-
-    if (process.env.NODE_ENV !== "production") {
-      console.log("OTP email sent to:", options.email);
-    }
-
     const previewUrl = nodemailer.getTestMessageUrl(info);
 
     return {
@@ -90,6 +80,7 @@ const sendEmail = async (options) => {
     };
   } catch (error) {
     console.error("Email delivery failed:", error);
+    // Return success: false so the controller knows to handle it
     return { success: false, error };
   }
 };
